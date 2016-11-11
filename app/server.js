@@ -51,6 +51,42 @@ function emulateServerReturn(data, cb) {
 * user to the likeCounter. Provides an updated likeCounter
 * in the response.
 */
+export function likeComment(feedItemId, commentID, userId, cb) {
+var feedItem = readDocument('feedItems', feedItemId);
+// Normally, we would check if the user already
+// liked this comment. But we will not do that
+// in this mock server. ('push' modifies the array
+// by adding userId to the end)
+feedItem.comments[commentID].likeCounter.push(userId);
+writeDocument('feedItems', feedItem);
+// Return a resolved version of the likeCounter
+emulateServerReturn(feedItem.commments[commentID].likeCounter.map((userId) =>
+readDocument('users', userId)), cb);
+}
+
+export function unlikeComment(feedItemId, commentID, userId, cb) {
+var feedItem = readDocument('feedItems', feedItemId);
+// Find the array index that contains the user's ID.
+// (We didn't *resolve* the FeedItem object, so
+// it is just an array of user IDs)
+var userIndex = feedItem.comments[commentID].likeCounter.indexOf(userId);
+// -1 means the user is *not* in the likeCounter,
+// so we can simply avoid updating
+// anything if that is the case: the user already
+// doesn't like the item.
+if (userIndex !== -1) {
+// 'splice' removes items from an array. This
+// removes 1 element starting from userIndex.
+feedItem.comments[commentID].likeCounter.splice(userIndex, 1);
+writeDocument('feedItems', feedItem);
+}
+// Return a resolved version of the likeCounter
+emulateServerReturn(feedItem.likeCounter.map((userId) =>
+readDocument('users', userId)), cb);
+}
+
+
+
 export function likeFeedItem(feedItemId, userId, cb) {
 var feedItem = readDocument('feedItems', feedItemId);
 // Normally, we would check if the user already
@@ -89,6 +125,7 @@ emulateServerReturn(feedItem.likeCounter.map((userId) =>
 readDocument('users', userId)), cb);
 }
 
+
 /**
 * Adds a new comment to the database on the given feed item.
 * Returns the updated FeedItem object.
@@ -102,6 +139,7 @@ var feedItem = readDocument('feedItems', feedItemId);
 feedItem.comments.push({
 "author": author,
 "contents": contents,
+"likeCounter": [],
 "postDate": new Date().getTime()
 });
 writeDocument('feedItems', feedItem);

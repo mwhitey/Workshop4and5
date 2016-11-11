@@ -29,7 +29,7 @@ return <Feed user={4} />;
 *
 * If we implemented all of Facebook, this App would
 * also contain Component objects for the left and
-
+30
 * right content panes.
 */
 class App extends React.Component {

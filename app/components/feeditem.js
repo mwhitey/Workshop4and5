@@ -145,9 +145,12 @@ var data = this.state;
     data.comments.map((comment, i) => {
     // i is comment's index in comments array
     return (
-    <Comment key={i}
+    <Comment key={i} number={i}
     author={comment.author}
-    postDate={comment.postDate}>
+    postDate={comment.postDate}
+    commentLikes = {comment.likeCounter}
+
+    parent = {this.state._id}>
     {comment.contents}
     </Comment>
     );
